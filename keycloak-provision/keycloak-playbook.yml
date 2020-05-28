@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  tasks:
+    - name: get the keycloak distribution binary
+      get_url:
+        url: https://downloads.jboss.org/keycloak/9.0.2/keycloak-9.0.2.zip
+        dest: /data/keycloak.zip
+        checksum: "sha1:e5a2d390437beaefdb236bf0fa615f85c932f179"
+    #- name: Creates "/tmp/kc" directory
+    #  file: path="/tmp/kc" state=directory
+    - name: Unarchive keycloak for admin commands
+      unarchive:
+        src: "/data/keycloak.zip"
+        dest: "/data"
+        remote_src: yes
+        keep_newer: yes
+
+
