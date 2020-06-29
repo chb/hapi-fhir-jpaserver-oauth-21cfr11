@@ -109,8 +109,9 @@ public class JpaRestfulServer extends RestfulServer {
         /*
          * Load interceptors for the server from Spring (these are defined in FhirServerConfig.java)
          */
-        Collection<IServerInterceptor> interceptorBeans = myAppCtx.getBeansOfType(IServerInterceptor.class)
-            .values();
+        Collection<IServerInterceptor> interceptorBeans = myAppCtx
+                .getBeansOfType(IServerInterceptor.class)
+                .values();
         for (IServerInterceptor interceptor : interceptorBeans) {
             this.registerInterceptor(interceptor);
         }

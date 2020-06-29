@@ -56,6 +56,8 @@ The following environment variables must be set prior to the execution:
 * `OAUTH_URL`: In case of enabling authentication, the url where the Keycloak OAuth 2.0 is available (`optional`, default value `http://auth:8081`).
 * `LOGGING_FOLDER`: To configure the folder for the logs to be managed by ELK (`optional`, default value `logs`)
 
+
+
 ## Database
 
 This image supports `Derby`, `MySQL`, `MariaDB` and `PostgreSQL`. To configure the database use `DB_VENDOR` with the following values [`DERBY`, `MYSQL`, `MARIADB`, `POSTGRESQL`].
@@ -203,5 +205,7 @@ By downloading this software, the downloader agrees with the specified terms and
 `bin/kcadm.sh set-password -r HAPIFHIR --username test --new-password Pa55w0rd`
 
 
+# Immutable DB
 
+Using immudb we can 
 

@@ -8,6 +8,7 @@ import javax.persistence.EntityManagerFactory;
 import ca.uhn.fhir.jpa.model.entity.ModelConfig;
 import ca.uhn.fhir.jpa.search.LuceneSearchMappingFactory;
 import ca.uhn.fhir.jpa.util.DerbyTenSevenHapiFhirDialect;
+import net.atos.ari.cdr.starter.journalinterceptor.JournalInterceptor;
 import org.apache.commons.dbcp2.BasicDataSource;
 // import org.hl7.fhir.dstu2.model.Subscription;
 import org.hl7.fhir.instance.model.Subscription.SubscriptionChannelType;
@@ -190,6 +191,12 @@ public class FhirServerConfig extends BaseJavaConfigDstu3 {
     public IServerInterceptor subscriptionKeyCloakInterceptor() {
         return new KeyCloakInterceptor();
     }
+
+    @Bean(autowire = Autowire.BY_TYPE)
+    public IServerInterceptor journalInterceptor() {
+        return new JournalInterceptor();
+    }
+
 
     @Bean()
     public JpaTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {

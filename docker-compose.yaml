@@ -143,3 +143,40 @@ services:
     depends_on:
       - keycloak
     #restart: always
+
+
+  immudb:
+    image: codenotary/immudb:latest
+    container_name: immudb
+    environment:
+      IMMUDB_NETWORK: tcp
+      IMMUDB_ADDRESS: 0.0.0.0
+      IMMUDB_AUTH: "true"
+    expose:
+      - "3322"
+    ports:
+      - "3322:3322"
+      - "9497:9497"
+
+  immugw:
+    image: codenotary/immugw:latest
+    container_name: immugw
+    environment:
+      IMMUGW_IMMUDB_ADDRESS: immudb
+      IMMUGW_IMMUDB_PORT: 3322
+    ports:
+      - "3323:3323"
+    depends_on:
+      - immudb
+
+  immudb-swagger:
+    image: swaggerapi/swagger-ui:latest
+    container_name: immudb-swagger
+    environment:
+      SWAGGER_JSON: "/openapi.json"
+    ports:
+      - "3380:8080"
+    volumes:
+      - ./immudb/immudb.schema.swagger.json:/openapi.json
+
+
