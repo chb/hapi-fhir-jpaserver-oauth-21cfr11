@@ -27,5 +27,4 @@ public class JournalInterceptor extends InterceptorAdapter {
         return outgoingResponse(details, theResponseObject, details.getServletRequest(), details.getServletResponse());
     }
 
-
 }

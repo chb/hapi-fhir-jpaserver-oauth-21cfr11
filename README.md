@@ -205,7 +205,15 @@ By downloading this software, the downloader agrees with the specified terms and
 `bin/kcadm.sh set-password -r HAPIFHIR --username test --new-password Pa55w0rd`
 
 
-# Immutable DB
+# Immutable DB (immudb)
 
-Using immudb we can 
+Using immudb we can store key/value pairs in an ummutable, tamper-evident database. 
+
+The `immudb` docker container, when started, creates a volume with the password pre-set for demonstration purposes. 
+Be sure to use the other options or run immudb isoltaed on the same networking host to provide good security for 
+production deployments.
+
+
+
+    
 

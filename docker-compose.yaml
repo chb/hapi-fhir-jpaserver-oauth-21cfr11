@@ -152,6 +152,7 @@ services:
       IMMUDB_NETWORK: tcp
       IMMUDB_ADDRESS: 0.0.0.0
       IMMUDB_AUTH: "true"
+      IMMUDB_ADMIN_PASSWORD: "immu"
     expose:
       - "3322"
     ports:
