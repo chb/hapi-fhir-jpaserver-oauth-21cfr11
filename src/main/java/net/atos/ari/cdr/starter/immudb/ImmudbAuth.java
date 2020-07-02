@@ -95,7 +95,7 @@ public class ImmudbAuth {
                 .builder()
                 .baseUrl("http://localhost:3323")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer", bearer )
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer "+ bearer )
                 .filters(exchangeFilterFunctions -> {
                     exchangeFilterFunctions.add(logRequest());
                 })
