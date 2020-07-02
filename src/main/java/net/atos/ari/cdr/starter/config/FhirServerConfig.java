@@ -8,6 +8,7 @@ import javax.persistence.EntityManagerFactory;
 import ca.uhn.fhir.jpa.model.entity.ModelConfig;
 import ca.uhn.fhir.jpa.search.LuceneSearchMappingFactory;
 import ca.uhn.fhir.jpa.util.DerbyTenSevenHapiFhirDialect;
+import net.atos.ari.cdr.starter.immudb.ImmudbAPI;
 import net.atos.ari.cdr.starter.journalinterceptor.JournalInterceptor;
 import org.apache.commons.dbcp2.BasicDataSource;
 // import org.hl7.fhir.dstu2.model.Subscription;
@@ -194,7 +195,7 @@ public class FhirServerConfig extends BaseJavaConfigDstu3 {
 
     @Bean(autowire = Autowire.BY_TYPE)
     public IServerInterceptor journalInterceptor() {
-        return new JournalInterceptor();
+        return new JournalInterceptor(new ImmudbAPI());
     }
 
 

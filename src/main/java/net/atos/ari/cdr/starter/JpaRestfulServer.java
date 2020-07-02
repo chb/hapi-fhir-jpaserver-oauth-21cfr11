@@ -19,6 +19,7 @@ import ca.uhn.fhir.rest.server.interceptor.IServerInterceptor;
 
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Meta;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 
