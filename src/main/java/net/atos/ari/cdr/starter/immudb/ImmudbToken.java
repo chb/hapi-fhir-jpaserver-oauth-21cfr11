@@ -1,5 +1,10 @@
 package net.atos.ari.cdr.starter.immudb;
 
+/**
+ *
+ * POJO token class to read and write bearer token responses from the ImmuDB gateway
+ *
+ */
 public class ImmudbToken {
     String token;
 

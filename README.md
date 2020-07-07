@@ -5,7 +5,11 @@ Forked from https://github.com/AriHealth/hapi-fhir-jpaserver-oauth with gratitud
 ## Description
 
 This is an open-source implementation of the FHIR server specification in Java based on [HAPI](http://hapifhir.io/). 
-HAPI FHIR CDR with support for several databases (Derby, MySQL, MariaDB and PostgreSQL) and OAuth.
+HAPI FHIR CDR with support for several databases (Derby, MySQL, MariaDB and PostgreSQL) and OAuth. The server and 
+associated containers provide an example implementation for a 21 CFR Part 11 system, where an enrolled and authenticated 
+FHIR client is provided an identity certificate that they can use to sign resources to provide an assuracen about 
+their provenance. The server also logs transactions to an immutable cryptographic journal to provide tamper-evidence 
+and a complete audit trail. 
 
 A docker-compose file is included that boots three services for client testing:
 
@@ -15,7 +19,26 @@ A docker-compose file is included that boots three services for client testing:
 (authenticated user information) and `/sign` for processing ID certificate signing requests. 
 (Swagger test at http://localhost:8081/swagger-ui.html, REST endpoints at `http://localhost:8081/login`,  `.../user` and `.../sign`)
 
-The docker-compose file also executes a transient job that provisions a test realm and user for client testing.    
+The docker compose file has a dependency on an authentication and signing server. 
+The server provides an intermediary to the Keycloak OAuth2 authentication and also acts as a signing service, where 
+a client application or app can generate and provide a certificate for signing that the service will
+verify to ensure it is the same identity as the authenticated user/client and return a signed identity certificate.
+The client can use this certificate to sign FHIR resources to enable an auditor to verify their provenance.  
+
+The [Keycloak Auth server](https://bitbucket.org/ihlchip/keycloak-auth-bch) is built into the local docker repository 
+by the docker-compose.yaml script.
+
+The docker-compose file also executes a transient job that provisions a test realm and user for client testing. 
+
+Client interactions with the 21CFR11-compliant server are demonstrated with a command-line client available from this location: 
+[fhir-21cfr11pro-client-example](https://bitbucket.org/ihlchip/fhir-21cfr11pro-client-example]   
+
+## Context
+
+The below diagram shows the context of the entire system and how the docker containers interact
+in the [docker-compose.yaml](docker-compose.yaml) file. 
+
+![HAPI FHIR JPA Server with OAuth and 21CFR11 Provenance and Journaling](images/21cfr11-containers-context.png)
 
 ## Technology
 
@@ -23,9 +46,11 @@ The docker-compose file also executes a transient job that provisions a test rea
 - Maven for Java dependency management
 - Jetty
 - Spring Framework
-- [HAPI](http://hapifhir.io/)
+- [Keycloak](https://www.keycloak.org) OpenID Connect and OAuth2
+- [HAPI](http://hapifhir.io/) Java FHIR Client and Server templates and frameworks
+- [ImmuDB](https://immudb.io)
 
-## How to deploy
+## How to deploy the FHIR server standalone
 
 Compile and package the project with:
 
@@ -83,9 +108,9 @@ No container is needed.
 
 ## Docker deployment
 
-### Full stack deployment using docker-compose
+### Full deployment with Docker Compose
 
-The project comes with a [docker-compose](https://docs.docker.com/compose/) which deploys testing containers for Keycloak (port: 9090), HAPI (8080), OAuth 2.0 Authenticator (8081):
+The project comes with a [docker-compose](https://docs.docker.com/compose/) file which deploys testing containers for Keycloak (port: 9090), HAPI (8080), OAuth 2.0 Authenticator (8081):
 
 0. Check the configuration values at the environment (`.env`) file. Put `OAUTH_ENABLE`=`true` to protect the API. You can modify at your needs.
 1. Execute `docker-compose up -d`
@@ -97,7 +122,7 @@ The project comes with a [docker-compose](https://docs.docker.com/compose/) whic
 4. Access the authenticator `http://localhost:8081/swagger-ui.html`
       * Open Login operation under Auth controller, `Try it out`:
       * In the JSON include the user created in Keycloak (`test`)
-      * The response is a OAuth access token
+      * The response is an OAuth access token
       * Copy the access token
       * Last thing is to configure the [HAPI client including the authorization token in the header](http://hapifhir.io/doc_rest_client_interceptor.html). Authorization header: `Bearer <access token>` (see the java snippet below)
 ```
@@ -185,14 +210,12 @@ We use as IdM [KeyCloak](http://www.keycloak.org/). [OAuth2 authorization in HAP
 ```
 
 
-## License
-
-Apache 2.0
-
-By downloading this software, the downloader agrees with the specified terms and conditions of the License Agreement and the particularities of the license provided.
 
 
-## Using the kcadm.sh to provision initialisation information
+
+## Using the kcadm.sh to provision initialisation information 
+
+_This is handled by the provisioning container in `docker-compose.yaml`_  
 
 `bin/kcadm.sh config credentials --server http://localhost:9090/auth --realm master --user admin --client admin-cli --password Pa55w0rd`
 
@@ -210,10 +233,12 @@ By downloading this software, the downloader agrees with the specified terms and
 Using immudb we can store key/value pairs in an ummutable, tamper-evident database. 
 
 The `immudb` docker container, when started, creates a volume with the password pre-set for demonstration purposes. 
-Be sure to use the other options or run immudb isoltaed on the same networking host to provide good security for 
+Be sure to use the other options or run immudb isolated on the same networking host to provide good security for 
 production deployments.
 
+## License
 
+Apache 2.0
 
-    
+By downloading this software, the downloader agrees with the specified terms and conditions of the License Agreement and the particularities of the license provided.    
 

@@ -31,6 +31,13 @@ public class ImmudbAPI {
     private WebClient webClient;
     private String baseURL;
 
+    /**
+     *
+     * The default constructor will create a REST client for communicating with the ImmuDB gateway. if
+     * environment variables are present then the URL, user and password will be take from the
+     * environment.
+     *
+     */
     public ImmudbAPI() {
         if ((IMMUDB_BASE_URL == null) || (IMMUDB_USER == null) || (IMMUDB_PASSWORD == null) ) {
             logger.info("No environment variables provided. Using defaults for some or all of: IMMUDB_BASE_URL IMMUDB_USER IMMUDB_PASSWORD");
@@ -44,10 +51,25 @@ public class ImmudbAPI {
         webClient = makeClient(user, password);
     }
 
+    /**
+     *
+     * The parameterised constructor will create a REST client for communicating with the ImmuDB gateway. with the
+     *  URL, user and password taken from the parameters.
+     *
+     */
     public ImmudbAPI(String username, String password, String baseURL) {
         this.baseURL = baseURL;
         webClient = makeClient(username, password);
     }
+
+    /**
+     * Contact the ImmuDB gateway to exchange the "long term" user and password for a bearer token.
+     *
+     * @param username the immudb/immugw username to use
+     * @param password the immudb/immugw password to use
+     *
+     * @return a bearer token or null
+     */
 
     private String getBearer(String username, String password) {
         webClient
@@ -79,6 +101,11 @@ public class ImmudbAPI {
         return decodedToken;
     }
 
+    /**
+     * Debug logging for the request and the header
+     *
+     * @return
+     */
     ExchangeFilterFunction logRequest() {
         return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
             if (logger.isDebugEnabled()) {
@@ -98,6 +125,15 @@ public class ImmudbAPI {
         });
     }
 
+    /**
+     *
+     * Build a web client for use in communicating with the immugw REST API.
+     *
+     * @param username
+     * @param password
+     *
+     * @return a copy of the created WebClient
+     */
     private WebClient makeClient(String username, String password) {
 
         String bearer = getBearer(username, password);
@@ -115,10 +151,26 @@ public class ImmudbAPI {
 
     }
 
+    /**
+     * Convenience function for converting some text into a base64 string
+     *
+     * @param fromPlaintext
+     *
+     * @return a base64 representation of the bytes in the original String
+     */
     private String makeB64(String fromPlaintext) {
         return new String(Base64Utils.encode(fromPlaintext.getBytes()));
     }
 
+    /**
+     * Add an item to the immuDB journal.
+     *
+     * @param key
+     * @param value
+     *
+     * @return the response JSON as a string. This is usually of the form {"index":"n"}
+     *
+     */
     public String addToJournal(String key, String value) {
         String payload = String.format(SET_JSON, makeB64(key), makeB64(value));
 
