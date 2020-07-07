@@ -1,4 +1,9 @@
 
+/*
+ * Copyright (c) 2020. Boston Children's Hospital. http://www.childrenshospital.org/research/departments-divisions-programs/programs/chip
+ * Author: christopher.gentle@childrens.harvard.edu
+ */
+
 package net.atos.ari.cdr.starter;
 
 import java.util.Collection;
