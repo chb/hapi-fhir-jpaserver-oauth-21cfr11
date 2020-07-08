@@ -4,14 +4,17 @@ Forked from https://github.com/AriHealth/hapi-fhir-jpaserver-oauth with gratitud
 
 ## Description
 
-This is an open-source implementation of the FHIR server specification in Java based on [HAPI](http://hapifhir.io/). 
+This is an example implementation of the draft [21 CFR Part 11-compliant FHIR PRO Implementation Guide](https://chb.github.io/21cfr11pro-ig/). 
+It centers around an open-source implementation of the FHIR server specification in Java based on [HAPI FHIR](http://hapifhir.io/). 
+
 HAPI FHIR CDR with support for several databases (Derby, MySQL, MariaDB and PostgreSQL) and OAuth. The server and 
 associated containers provide an example implementation for a 21 CFR Part 11 system, where an enrolled and authenticated 
 FHIR client is provided an identity certificate that they can use to sign resources to provide an assuracen about 
-their provenance. The server also logs transactions to an immutable cryptographic journal to provide tamper-evidence 
-and a complete audit trail. 
+their provenance. The server also logs transactions to an immutable cryptographic journal to provide a tamper-evident 
+record of all transactions and their provenance, and a complete audit trail. 
 
-A docker-compose file is included that boots three services for client testing:
+A docker-compose file is included that boots the back-end services for [client](https://bitbucket.org/ihlchip/fhir-21cfr11pro-client-example) 
+testing:
 
 * This HAPI-FHIR Oauth server (http://localhost:8080)
 * Keycloak - a full-featured OpenID ID provider  (http://localhost:9090)
@@ -191,6 +194,7 @@ We follow the recommended [MySQL configuration](https://groups.google.com/forum/
 
 We use as IdM [KeyCloak](http://www.keycloak.org/). [OAuth2 authorization in HAPI](http://hapifhir.io/doc_rest_server_security.html#Authorization_Interceptor) is done [via Interceptors](http://hapifhir.io/doc_rest_server_interceptor.html). We reuse the [careconnect implementation](https://github.com/nhsconnect/careconnect-reference-implementation/blob/master/ccri-fhirserver/src/main/java/uk/nhs/careconnect/ccri/fhirserver/oauth2/OAuthTokenUtil.java
 ) creating a new IServerInterceptor in FhirConfig that is automatically registered when launching the server:
+
 ```
     @Bean(autowire = Autowire.BY_TYPE)
     public IServerInterceptor subscriptionKeyCloakInterceptor() {
@@ -208,8 +212,6 @@ We use as IdM [KeyCloak](http://www.keycloak.org/). [OAuth2 authorization in HAP
     // Register the interceptor with your client (either style)
     client.registerInterceptor(authInterceptor);
 ```
-
-
 
 
 
@@ -242,3 +244,44 @@ Apache 2.0
 
 By downloading this software, the downloader agrees with the specified terms and conditions of the License Agreement and the particularities of the license provided.    
 
+# Future Enhancements and Production Deployment
+
+The example code has been preparet ot be a clear and clean example of a system that implements the [21 CFR Part 11 
+Patient Reported Outcomes Implementation Guide](https://chb.github.io/21cfr11pro-ig/). 
+
+## Securing the Journal
+
+In this example implementation the path from the FHIR server to ImmuDB is HTTP and secured with a 
+non-secret password. For production deployment use a secret password, use a TLS proxy like Nginx, or retain the 
+network isolation that keeps ImmuDB & ImmuGW and the FHIR Server's communication private. 
+
+ImmuDB also offers an ability to sign data with a public key cryptography, though the REST API does not support this yet. 
+If a GRPC API is used then the server can run key refresh operations and provide an additional level of assurance.  
+
+## Journal Alternatives
+
+ImmuDB is a fast, self-deployed alternative to Aamzon Web Services' Quantum Ledger Database (QLDB).  The function ImmuGW and 
+ImmuDB fulfil in the example implementation can be played by QLDB. 
+
+For an AWS-based deployment Amazon RDS could be used as a HAPI FHIR pseristence store, AWS Cognito instead of Keycloak, 
+and QLDB instead of ImmuDB. 
+
+![Simple AWS 21CFR11 FHIR architecture](images/21cfr11-aws-qldb-example.png)   
+
+## Request Authorization
+
+The example implementation assumes that all requests are benign requests by a single client. A production FHIR server 
+should implement authorization that restricts clients to adding resources with only their own client's matched patient 
+ID. For clinical reasons the app interface should not support `GET` or `DELETE` operations and should be cautious about 
+allowing  `PATCH` `PUT` and other non-`POST` operations. 
+
+## More Advanced Interceptors 
+
+The [JournalInterceptor](net/atos/ari/cdr/starter/journalinterceptor/JournalInterceptor.java) overriding the 
+`outgoingResponse()` method relies on the client behaving according to the implementation guide so that requests that
+add or otherwise modify FHIR resources return a copy of the modified resource. 
+
+Ideally the FHIR server would reject any client request that did not have the representation header set, or 
+it would ignore return value settings and always provide the server's latest copy of the resource in any successful 
+mutation operation (`PUT`, `POST`, `PATCH`, `DELETE`).
+    
