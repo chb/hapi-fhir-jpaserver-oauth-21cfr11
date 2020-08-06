@@ -232,7 +232,7 @@ _This is handled by the provisioning container in `docker-compose.yaml`_
 
 # Immutable DB (immudb)
 
-Using immudb we can store key/value pairs in an ummutable, tamper-evident database. 
+Using immudb we can store key/value pairs in an immutable, tamper-evident database. 
 
 The `immudb` docker container, when started, creates a volume with the password pre-set for demonstration purposes. 
 Be sure to use the other options or run immudb isolated on the same networking host to provide good security for 
@@ -242,7 +242,8 @@ production deployments.
 
 Apache 2.0
 
-By downloading this software, the downloader agrees with the specified terms and conditions of the License Agreement and the particularities of the license provided.    
+By downloading this software, the downloader agrees with the specified terms and conditions of the License Agreement 
+and the particularities of the license provided.    
 
 # Future Enhancements and Production Deployment
 
