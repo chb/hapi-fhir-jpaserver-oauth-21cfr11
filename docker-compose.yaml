@@ -85,7 +85,7 @@ services:
 #    restart: always
 
   keycloak:
-    image: jboss/keycloak
+    image: alemairebe/keycloak:14.0.0
     container_name: keycloak
     environment:
       KEYCLOAK_USER: ${KEYCLOAK_USER}
@@ -126,7 +126,8 @@ services:
 # Auth service
   auth:
     build:
-      context: https://bitbucket.org/ihlchip/keycloak-auth-bch.git
+      dockerfile: Dockerfile
+      context: /Users/jerryxiong/fmit/keycloak_auth
     container_name: auth
     environment:
       KEYCLOAK_URL: ${KEYCLOAK_URL}
@@ -175,7 +176,7 @@ services:
       - immudb
 
   immudb-swagger:
-    image: swaggerapi/swagger-ui:latest
+    image: pentusha/swagger-ui-crossbuild:latest
     container_name: immudb-swagger
     environment:
       SWAGGER_JSON: "/openapi.json"
