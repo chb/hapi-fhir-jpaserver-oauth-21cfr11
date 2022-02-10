@@ -127,7 +127,7 @@ services:
   auth:
     build:
       dockerfile: Dockerfile
-      context: /Users/jerryxiong/fmit/keycloak_auth
+      context: https://bitbucket.org/ihlchip/keycloak-auth-bch.git#arm64-setup
     container_name: auth
     environment:
       KEYCLOAK_URL: ${KEYCLOAK_URL}
