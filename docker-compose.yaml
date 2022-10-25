@@ -85,7 +85,7 @@ services:
 #    restart: always
 
   keycloak:
-    image: jboss/keycloak
+    image: alemairebe/keycloak:14.0.0
     container_name: keycloak
     environment:
       KEYCLOAK_USER: ${KEYCLOAK_USER}
@@ -105,9 +105,9 @@ services:
 #      DB_HOST: ${DB_HOST}
 #      DB_PORT: ${DB_PORT}
 #      DB_DATABASE: ${DB_DB}
-#      DB_USER: ${DB_USER}
+#      DB_USER: ${DB_USER}z
 #      DB_PASSWORD: ${DB_PASSWORD}
-      OAUTH_URL: ${OAUTH_URL}  
+      OAUTH_URL: ${OAUTH_URL}
       OAUTH_ENABLE: ${OAUTH_ENABLE}
       IMMUDB_BASE_URL: http://immugw:3323
       IMMUDB_USER: immu

@@ -25,16 +25,17 @@
         <!-- Dependency Versions -->
         <derby_version>10.14.2.0</derby_version>
         <jaxb_api_version>2.3.1</jaxb_api_version>
-        <jetty_version>9.4.27.v20200227</jetty_version>
+        <jetty_version>11.0.12</jetty_version>
+        <jetty_websocket_version>9.4.49.v20220914</jetty_websocket_version>
         <phloc_schematron_version>2.7.1</phloc_schematron_version>
-        <spring_version>5.1.8.RELEASE</spring_version>
+        <spring_version>5.3.23</spring_version>
         <thymeleaf-version>3.0.11.RELEASE</thymeleaf-version>
         <ebay_cors_filter_version>1.0.1</ebay_cors_filter_version>
         <commons_dbcp2>2.6.0</commons_dbcp2>
-        <hapi.version>3.8.0</hapi.version>
+        <hapi.version>6.1.1</hapi.version>
         <mariadb.version>2.4.3</mariadb.version>
-        <mysql.version>6.0.5</mysql.version>
-        <postgresql.version>42.2.6</postgresql.version>
+        <mysql.version>8.0.30</mysql.version>
+        <postgresql.version>42.2.26</postgresql.version>
 
         <!-- javadoc and scm configuration for the CI -->
         <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
@@ -96,19 +97,19 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.13.2</version>
         </dependency>
 
         <!-- Jetty -->
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>websocket-api</artifactId>
-            <version>${jetty_version}</version>
+            <version>${jetty_websocket_version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>websocket-client</artifactId>
-            <version>${jetty_version}</version>
+            <version>${jetty_websocket_version}</version>
         </dependency>
 
         <!-- This dependency includes the core HAPI-FHIR classes -->
@@ -156,7 +157,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.9</version>
         </dependency>
 
         <!-- Needed for JEE/Servlet support -->
@@ -238,7 +239,7 @@
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>websocket-server</artifactId>
-            <version>${jetty_version}</version>
+            <version>${jetty_websocket_version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -311,7 +312,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.9.7</version>
+            <version>2.9.8</version>
         </dependency>
 
     </dependencies>
@@ -463,26 +464,26 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>se.bjurr.gitchangelog</groupId>
-                <artifactId>git-changelog-maven-plugin</artifactId>
-                <version>1.60</version>
-                <executions>
-                    <execution>
-                        <id>generateChangelog</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>git-changelog</goal>
-                        </goals>
-                        <configuration>
-                            <gitHubToken>${GITHUB_API_TOKEN}</gitHubToken>
-                            <templateFile>changelog.mustache</templateFile>
-                            <settingsFile>changelog.json</settingsFile>
-                            <file>CHANGELOG.md</file>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>se.bjurr.gitchangelog</groupId>-->
+<!--                <artifactId>git-changelog-maven-plugin</artifactId>-->
+<!--                <version>1.60</version>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>generateChangelog</id>-->
+<!--                        <phase>generate-sources</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>git-changelog</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <gitHubToken>${GITHUB_API_TOKEN}</gitHubToken>-->
+<!--                            <templateFile>changelog.mustache</templateFile>-->
+<!--                            <settingsFile>changelog.json</settingsFile>-->
+<!--                            <file>CHANGELOG.md</file>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
         </plugins>
     </build>
 

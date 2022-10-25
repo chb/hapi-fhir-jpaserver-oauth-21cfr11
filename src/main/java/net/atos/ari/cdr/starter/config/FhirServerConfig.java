@@ -4,26 +4,36 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import javax.persistence.EntityManagerFactory;
+import javax.xml.bind.annotation.XmlType;
 
+
+import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.jpa.config.HapiJpaConfig;
+import ca.uhn.fhir.jpa.config.dstu3.JpaDstu3Config;
+import ca.uhn.fhir.jpa.config.util.HapiEntityManagerFactoryUtil;
 import ca.uhn.fhir.jpa.model.entity.ModelConfig;
-import ca.uhn.fhir.jpa.search.LuceneSearchMappingFactory;
+import ca.uhn.fhir.jpa.search.HapiHSearchAnalysisConfigurers;
 import ca.uhn.fhir.jpa.util.DerbyTenSevenHapiFhirDialect;
 import net.atos.ari.cdr.starter.immudb.ImmudbAPI;
 import net.atos.ari.cdr.starter.journalinterceptor.JournalInterceptor;
 import org.apache.commons.dbcp2.BasicDataSource;
-// import org.hl7.fhir.dstu2.model.Subscription;
-import org.hl7.fhir.instance.model.Subscription.SubscriptionChannelType;
+import org.hibernate.search.backend.lucene.cfg.LuceneBackendSettings;
+import org.hibernate.search.backend.lucene.cfg.LuceneIndexSettings;
+import org.hibernate.search.engine.cfg.BackendSettings;
+import org.hl7.fhir.dstu2.model.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowire;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import ca.uhn.fhir.jpa.config.BaseJavaConfigDstu3;
-import ca.uhn.fhir.jpa.dao.DaoConfig;
+import ca.uhn.fhir.jpa.api.config.DaoConfig;
 import ca.uhn.fhir.jpa.util.SubscriptionsRequireManualActivationInterceptorDstu3;
 import ca.uhn.fhir.rest.server.interceptor.IServerInterceptor;
 import ca.uhn.fhir.rest.server.interceptor.LoggingInterceptor;
@@ -34,8 +44,9 @@ import net.atos.ari.cdr.starter.oauth2.KeyCloakInterceptor;
  * This is the primary configuration file for the example server
  */
 @Configuration
+@Import({JpaDstu3Config.class})
 @EnableTransactionManagement()
-public class FhirServerConfig extends BaseJavaConfigDstu3 {
+public class FhirServerConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(FhirServerConfig.class);
 
     private static final String DEFAULT_MYSQL_PORT = "3306";
@@ -58,6 +69,8 @@ public class FhirServerConfig extends BaseJavaConfigDstu3 {
     private static final String DB_DATABASE = System.getenv("DB_DATABASE") == null ? "" : System.getenv("DB_DATABASE");
     private static final String LUCENE_FOLDER = System.getenv("LUCENE_FOLDER") == null ? DEFAULT_LUCENE_FOLDER : System.getenv("LUCENE_FOLDER");
 
+    public static final String FHIR_LUCENE_LOCATION_DSTU3 = "fhir.lucene.location.dstu3";
+
     /**
      * Configure FHIR properties around the the JPA server via this bean
      */
@@ -65,10 +78,10 @@ public class FhirServerConfig extends BaseJavaConfigDstu3 {
     public DaoConfig daoConfig() {
         DaoConfig retVal = new DaoConfig();
         retVal.setAllowMultipleDelete(true);
-        retVal.addSupportedSubscriptionType(SubscriptionChannelType.WEBSOCKET);
-        retVal.addSupportedSubscriptionType(SubscriptionChannelType.RESTHOOK);
-        retVal.addSupportedSubscriptionType(SubscriptionChannelType.EMAIL);
-        retVal.setSubscriptionMatchingEnabled(true);
+        retVal.addSupportedSubscriptionType(Subscription.SubscriptionChannelType.WEBSOCKET);
+        retVal.addSupportedSubscriptionType(Subscription.SubscriptionChannelType.RESTHOOK);
+        retVal.addSupportedSubscriptionType(Subscription.SubscriptionChannelType.EMAIL);
+        retVal.setEnableInMemorySubscriptionMatching(true);
         return retVal;
     }
 
@@ -78,12 +91,12 @@ public class FhirServerConfig extends BaseJavaConfigDstu3 {
     }
 
     /**
-     * The following bean configures the database connection. 
+     * The following bean configures the database connection.
      * The 'url' property value of "jdbc:derby:directory:jpaserver_derby_files;create=true"
      * indicates that the server should save resources in a directory called "jpaserver_derby_files".
-     * 
+     *
      * A URL to a remote database could also be placed here, along with login credentials and other properties supported by BasicDataSource.
-     * @throws SQLException 
+     * @throws SQLException
      */
     @Bean(destroyMethod = "close")
     public BasicDataSource dataSource() {
@@ -119,10 +132,9 @@ public class FhirServerConfig extends BaseJavaConfigDstu3 {
         }
     }
 
-    @Override
     @Bean()
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-        LocalContainerEntityManagerFactoryBean retVal = super.entityManagerFactory();
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(ConfigurableListableBeanFactory theConfigurableListableBeanFactory, FhirContext theFhirContext) {
+        LocalContainerEntityManagerFactoryBean retVal = HapiEntityManagerFactoryUtil.newEntityManagerFactory(theConfigurableListableBeanFactory, theFhirContext);
         retVal.setPersistenceUnitName("HAPI_PU");
         retVal.setDataSource(dataSource());
         retVal.setJpaProperties(jpaProperties());
@@ -155,10 +167,14 @@ public class FhirServerConfig extends BaseJavaConfigDstu3 {
         extraProperties.put("hibernate.cache.use_second_level_cache", Boolean.FALSE.toString());
         extraProperties.put("hibernate.cache.use_structured_entries", Boolean.FALSE.toString());
         extraProperties.put("hibernate.cache.use_minimal_puts", Boolean.FALSE.toString());
-        extraProperties.put("hibernate.search.model_mapping", LuceneSearchMappingFactory.class.getName());
-        extraProperties.put("hibernate.search.default.directory_provider", "filesystem");
-        extraProperties.put("hibernate.search.default.indexBase", LUCENE_FOLDER == null ? DEFAULT_LUCENE_FOLDER : LUCENE_FOLDER);
-        extraProperties.put("hibernate.search.lucene_version", "LUCENE_CURRENT");
+
+        extraProperties.put(BackendSettings.backendKey(BackendSettings.TYPE), "lucene");
+        extraProperties.put(BackendSettings.backendKey(LuceneBackendSettings.ANALYSIS_CONFIGURER),
+                HapiHSearchAnalysisConfigurers.HapiLuceneAnalysisConfigurer.class.getName());
+        extraProperties.put(BackendSettings.backendKey(LuceneIndexSettings.DIRECTORY_TYPE), "local-filesystem");
+        extraProperties.put(BackendSettings.backendKey(LuceneIndexSettings.DIRECTORY_ROOT), LUCENE_FOLDER);
+        extraProperties.put(BackendSettings.backendKey(LuceneBackendSettings.LUCENE_VERSION), "LUCENE_CURRENT");
+
         return extraProperties;
     }
 
