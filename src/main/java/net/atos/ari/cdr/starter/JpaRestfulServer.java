@@ -22,8 +22,8 @@ import ca.uhn.fhir.rest.server.ETagSupportEnum;
 import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.IServerInterceptor;
 
-import org.hl7.fhir.dstu3.model.Bundle;
-import org.hl7.fhir.dstu3.model.Meta;
+import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Meta;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;

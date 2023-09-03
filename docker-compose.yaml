@@ -50,21 +50,21 @@ services:
 #    restart: always
 
 # PostgreSQL database for HAPI
-#  postgres:
-#    image: postgres
-#    container_name: postgres
-##    volumes:
-##      - ${CONFIG_FOLDER}/postgresql/data:/var/lib/postgresql/data
-#    environment:
-#      POSTGRES_DB: ${DB_DB}
-#      POSTGRES_USER: ${DB_USER}
-#      POSTGRES_PASSWORD: ${DB_PASSWORD}
-#    healthcheck:
-#      test: ["CMD-SHELL", "pg_isready -U postgres"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
-#    restart: always
+  postgres:
+    image: postgres:14-alpine3.15
+    container_name: postgres
+#    volumes:
+#      - ${CONFIG_FOLDER}/postgresql/data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${DB_DB}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
 
 # MariaDB database for HAPI
 #  mariadb:
@@ -118,7 +118,7 @@ services:
       - auth
 #      - mysql
 #      - mariadb
-#      - postgres
+      - postgres
       - keycloak
       - immugw
     #restart: always

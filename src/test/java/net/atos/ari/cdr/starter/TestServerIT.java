@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.hl7.fhir.dstu3.model.Patient;
+import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.instance.model.api.IIdType;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
